@@ -58,6 +58,12 @@ router.post("/login", async (req, res) => {
 router.post("/forgot-password", async (req, res) => {
   const email = req.body.email;
 
+  if (!email) {
+    return res.status(400).json({
+      error: "Please provide an email address",
+    });
+  }
+
   try {
     await sendPasswordResetOtp(email);
     res.json({
