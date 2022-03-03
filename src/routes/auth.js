@@ -39,11 +39,9 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findByCredentials(
-      req.body.email,
-      req.body.password
-    );
+    const user = await User.findByCredentials(email, password);
     const token = await user.generateAuthToken();
+
     res.send({ user, token, message: "Login Success" });
   } catch (err) {
     res.status(400).send();
@@ -56,8 +54,8 @@ router.post("/login", async (req, res) => {
 }
 */
 
-router.post("/forgot-password", auth, async (req, res) => {
-  const email = req.user.email;
+router.post("/forgot-password", async (req, res) => {
+  const email = req.body.email;
 
   try {
     await sendPasswordResetOtp(email);
