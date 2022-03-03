@@ -2,8 +2,12 @@ const express = require("express");
 const validator = require("validator");
 
 const router = express.Router();
+
+const User = require("../models/user");
+
 const sendPasswordResetOtp = require("../utils/password-reset-otp");
 const verifyOtp = require("../utils/verify-otp");
+const auth = require("../middleware/auth");
 
 /*
 1. login {
@@ -34,10 +38,16 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  res.status(201).json({
-    message: "Login Success",
-    email,
-  });
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    const token = await user.generateAuthToken();
+    res.send({ user, token, message: "Login Success" });
+  } catch (err) {
+    res.status(400).send();
+  }
 });
 
 /*
@@ -46,14 +56,8 @@ router.post("/login", async (req, res) => {
 }
 */
 
-router.post("/forgot-password", async (req, res) => {
-  const email = req.body.email;
-
-  if (!email) {
-    return res.status(400).json({
-      error: "Please provide an email address",
-    });
-  }
+router.post("/forgot-password", auth, async (req, res) => {
+  const email = req.user.email;
 
   try {
     await sendPasswordResetOtp(email);
@@ -74,7 +78,7 @@ router.post("/forgot-password", async (req, res) => {
   otp,
 }
 */
-
+// Calls a mock function `verifyOtp` as discussed with the interviewer
 router.post("/verify-otp", async (req, res) => {
   const email = req.body.email;
   const otp = req.body.otp;
@@ -101,6 +105,31 @@ router.post("/verify-otp", async (req, res) => {
     res.status(400).json({
       message: "Account not found",
     });
+  }
+});
+
+// Additional routes
+router.post("/logout", auth, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(
+      (token) => token.token !== req.token
+    );
+    await req.user.save();
+    res.send("Logged out successfully");
+  } catch (error) {
+    res.status(500).send();
+  }
+});
+
+router.post("/signup", async (req, res) => {
+  const user = new User(req.body);
+  const token = await user.generateAuthToken();
+
+  try {
+    await user.save();
+    res.status(201).send({ user, token });
+  } catch (error) {
+    res.status(400).send({ error });
   }
 });
 

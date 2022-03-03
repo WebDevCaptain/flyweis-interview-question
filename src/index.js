@@ -1,7 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 const app = express();
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("Env variables loaded");
+  require("dotenv").config();
+}
+
 const connectDB = require("./utils/db");
 
 const authRouter = require("./routes/auth");
@@ -21,7 +26,7 @@ app.use("/courses", coursesRouter);
 
 app.get("*", (req, res) => {
   res.json({
-    msg: "Hello",
+    msg: "Hello, Welcome to this interview project",
   });
 });
 

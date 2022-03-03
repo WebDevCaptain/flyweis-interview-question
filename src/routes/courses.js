@@ -4,6 +4,9 @@ const router = express.Router();
 const enrollInCourse = require("../utils/enroll-course");
 const getCourseList = require("../utils/get-course-list");
 
+const Course = require("../models/course");
+const auth = require("../middleware/auth");
+
 /*
 5.All Courses {
   course image
@@ -34,14 +37,13 @@ router.get("/all-courses", async (req, res) => {
 /*
 6.Enroll courses
 */
-
-router.post("/enroll", async (req, res) => {
-  const email = req.body.email;
+router.post("/enroll", auth, async (req, res) => {
+  const email = req.user.email;
   const courseId = req.body.courseId;
 
-  if (!email || !courseId) {
+  if (!courseId) {
     return res.status(400).json({
-      error: "Please provide a valid email address and Course ID",
+      error: "Please provide a valid Course ID",
     });
   }
 
@@ -57,6 +59,37 @@ router.post("/enroll", async (req, res) => {
     });
   }
 });
+
+// WARNING - For development purposes only route
+// For creating dummy courses
+if (process.env.NODE_ENV !== "production") {
+  const faker = require("@faker-js/faker").default;
+
+  router.get("/create-dummy-course", async (req, res) => {
+    const course = new Course({
+      course_image: `${faker.name.firstName()}.jpg`,
+      course_name: `${faker.name.firstName()}`,
+      description: `This is a dummy course created for testing`,
+      course_for: "ADVANCED",
+      rating: 2,
+      duration: 6,
+      remaining_time: 3,
+    });
+
+    try {
+      await course.save();
+
+      res.send({
+        message: "Course created",
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        error: "Something went wrong",
+      });
+    }
+  });
+}
 
 /*
 7. All Programs apis
