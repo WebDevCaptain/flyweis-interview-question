@@ -94,3 +94,44 @@ All the responses are in JSON format.
   - On failure Returns:
     - Bad Request with Error code 400
       - error: "Either payment is not processed or Course ID is incorrect"
+
+---
+
+## Extras
+
+- /auth/signup
+
+  - Request Body:
+
+    - "email": "xyz@flyweis.technology"
+    - "password": "flyweis.tech"
+    - "name": "Cactus"
+
+  - On Success Returns:
+
+    - user
+    - token
+
+  - On failure Returns:
+
+    - Bad Request with Error code 400
+
+  - Example Request Body:
+
+    - "email": "xyz@flyweis.technology"
+    - "password": "flyweis.tech"
+    - "name": "Cactus"
+
+  - Example Success Response
+
+    - "user":
+
+      - "\_id": "6220d7eb7c9e4996ee683128",
+      - "name": "Test",
+      - "age": 0,
+      - "email": "web@test.com",
+      - "createdAt": "2022-03-03T14:59:55.682Z",
+      - "updatedAt": "2022-03-03T15:16:53.530Z",
+      - "\_\_v": 5
+
+    - "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjIwZDdlYjdjOWU0OTk2ZWU2ODMxMjgiLCJpYXQiOjE2NDYzMjA2MTN9.sK274T1RmSxkNxBfcE4iwK_S73fpLcKMMdZnEkNFt0M"
